@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Index - Hello</title>
+  <style>
+    :root{
+      --bg: #000;
+      --text: #00ffd5;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+    .center{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:2rem;
+    }
+    h1{
+      margin:0;
+      font-weight:700;
+      font-size:clamp(2rem,12vw,8rem);
+      letter-spacing:0.02em;
+      text-shadow:
+        0 0 8px rgba(0,255,213,0.95),
+        0 0 30px rgba(0,255,213,0.25),
+        0 10px 30px rgba(0,0,0,0.6);
+    }
+    .glow{
+      animation:glow 2.5s ease-in-out infinite;
+    }
+    @keyframes glow{
+      0%,100%{filter:drop-shadow(0 0 8px rgba(0,255,213,0.9)); transform:translateY(0)}
+      50%{filter:drop-shadow(0 0 20px rgba(0,255,213,1)); transform:translateY(-6px)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .glow{animation:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="center">
+    <h1 class="glow">Hello</h1>
+  </div>
+</body>
+</html>
