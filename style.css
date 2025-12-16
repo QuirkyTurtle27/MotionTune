@@ -1,17 +1,28 @@
-:root{
+:root {
   --bg: #071021;
-  --panel: rgba(255,255,255,0.02);
-  --muted: rgba(230,238,248,0.65);
+  --panel: rgba(255, 255, 255, 0.02);
+  --muted: rgba(230, 238, 248, 0.65);
   --text: #e6eef8;
   --accent: #0d6efd;
   --success: #198754;
 }
-html,body { height:100%; }
-body { background: var(--bg); color: var(--text); }
-.navbar { background: transparent; }
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.navbar {
+  background: transparent;
+}
 
 .drop-zone {
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   padding: 1.6rem;
   text-align: center;
@@ -19,42 +30,119 @@ body { background: var(--bg); color: var(--text); }
   transition: background .12s, border-color .12s;
   background: var(--panel);
 }
-.drop-zone small { color: var(--muted); }
+
+.drop-zone small {
+  color: var(--muted);
+}
 
 .placeholder {
   min-height: 140px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--muted);
   background: var(--panel);
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.03);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.preview-placeholder{
+.preview-placeholder {
   aspect-ratio: 16 / 9;
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.35);
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.03);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
-#preview { width:100%; height:100%; object-fit:contain; background:black; display:block; }
 
-.text-muted { color: var(--muted) !important; }
+#preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: black;
+  display: block;
+}
 
-.btn { border-radius: 8px; box-shadow: none; font-weight:500; }
-.btn-primary { background: var(--accent); color: white; border: none; }
-.btn-outline-secondary { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.06); }
-.btn-outline-secondary:hover { background: rgba(255,255,255,0.02); }
-.btn-success { background: var(--success); color: white; border:none; }
-.btn:disabled { opacity: 0.6; filter: grayscale(6%); }
+.text-muted {
+  color: var(--muted) !important;
+}
 
-.progress { background: rgba(255,255,255,0.03); }
-.progress-bar { background: var(--accent); }
+.btn {
+  border-radius: 8px;
+  box-shadow: none;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.btn-outline-secondary:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  border: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  filter: grayscale(6%);
+}
+
+.progress {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.progress-bar {
+  background: var(--accent);
+}
+
+/* Stage 2  */
+/* ===== Canvas - Playback Speed Editor ===== */
+
+.canvas-section {
+  padding: 1.5rem;
+  background-color: #111827;
+  border-radius: 12px;
+  color: #e5e7eb;
+  margin-top: 2rem;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 25%;
+  /* canvas ratio 4:1 */
+  background: #020617;
+  border-radius: 10px;
+  border: 1px solid #374151;
+  overflow: hidden;
+}
+
+#speedCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.canvas-controls {
+  margin-top: 0.75rem;
+}
