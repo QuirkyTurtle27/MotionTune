@@ -20,6 +20,8 @@
   let audioContext = null;
   let decodedBuffer = null;
   let downloadUrl = null;
+  let isVideo = false;
+  let updateLoop = null;
 
   function setProgress(p, text) {
     progressBar.style.width = p * 100 + "%";
@@ -40,6 +42,7 @@
 
   function onFileSelected(file) {
     currentFile = file;
+    isVideo = file.type.startsWith('video/');
     const url = URL.createObjectURL(file);
     preview.src = url;
     preview.load();
@@ -48,6 +51,19 @@
     fileInfo.querySelector(".fw-semibold").textContent = file.name;
 
     startBtn.disabled = false;
+  }
+
+  function getSpeedAtT(curve, t) {
+    if (!curve.length) return 1;
+    const pts = curve.map(p => ({t: p.t, speed: p.speed})).sort((a,b) => a.t - b.t);
+    for (let i = 0; i < pts.length - 1; i++) {
+      const dt = pts[i+1].t - pts[i].t;
+      if (dt > 0 && t >= pts[i].t && t <= pts[i+1].t) {
+        const ratio = (t - pts[i].t) / dt;
+        return pts[i].speed + (pts[i+1].speed - pts[i].speed) * ratio;
+      }
+    }
+    return pts.length ? pts[pts.length-1].speed : 1;
   }
 
   dropZone.addEventListener("click", () => videoFile.click());
@@ -68,6 +84,19 @@
   videoFile.addEventListener("change", (e) => {
     const f = e.target.files && e.target.files[0];
     if (f) onFileSelected(f);
+  });
+
+  preview.addEventListener('play', () => {
+    const curve = window.motionTuneCanvas?.getSpeedCurve() || [];
+    if (!curve.length) return;
+    const update = () => {
+      if (preview.paused || preview.ended) return;
+      const t = preview.currentTime / preview.duration;
+      const speed = getSpeedAtT(curve, t);
+      preview.playbackRate = speed;
+      requestAnimationFrame(update);
+    };
+    update();
   });
 
   // Microphone recording
@@ -118,14 +147,18 @@
       const val = parseFloat(btn.textContent.replace("x", "")) || 1;
       speedRange.value = val;
       speedValue.textContent = val.toFixed(2) + "x";
-      preview.playbackRate = val;
+      if (!(window.motionTuneCanvas?.getSpeedCurve() || []).length) {
+        preview.playbackRate = val;
+      }
     })
   );
 
   speedRange.addEventListener("input", () => {
     const v = parseFloat(speedRange.value);
     speedValue.textContent = v.toFixed(2) + "x";
-    preview.playbackRate = v;
+    if (!(window.motionTuneCanvas?.getSpeedCurve() || []).length) {
+      preview.playbackRate = v;
+    }
   });
 
   async function ensureAudioContext() {
@@ -136,11 +169,7 @@
     return audioContext;
   }
 
-  startBtn.addEventListener("click", async () => {
-    if (!currentFile) return;
-    startBtn.disabled = true;
-    setProgress(0.05, "Preparing...");
-
+  async function processAudio() {
     await ensureAudioContext();
 
     const arrayBuffer = await currentFile.arrayBuffer();
@@ -196,6 +225,56 @@
     downloadLink.download = baseName + "-audio.wav";
 
     startBtn.disabled = false;
+  }
+
+  function processVideo() {
+    const speed = parseFloat(speedRange.value) || 1;
+    const curve = window.motionTuneCanvas?.getSpeedCurve() || [];
+    const stream = preview.captureStream();
+    const recorder = new MediaRecorder(stream);
+    let chunks = [];
+    recorder.ondataavailable = e => chunks.push(e.data);
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, {type: 'video/webm'});
+      if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+      downloadUrl = URL.createObjectURL(blob);
+      downloadLink.classList.remove('disabled');
+      downloadLink.href = downloadUrl;
+      const baseName = currentFile.name.replace(/\.[^/.]+$/, '');
+      downloadLink.download = baseName + '-video.webm';
+      setProgress(1, 'Done');
+      startBtn.disabled = false;
+    };
+    setProgress(0.15, 'Recording...');
+    recorder.start();
+    preview.currentTime = 0;
+    preview.play();
+    if (curve.length) {
+      const update = () => {
+        if (preview.paused || preview.ended) return;
+        const t = preview.currentTime / preview.duration;
+        const s = getSpeedAtT(curve, t);
+        preview.playbackRate = s;
+        requestAnimationFrame(update);
+      };
+      update();
+    } else {
+      preview.playbackRate = speed;
+    }
+    preview.addEventListener('ended', () => {
+      recorder.stop();
+    }, {once: true});
+  }
+
+  startBtn.addEventListener("click", async () => {
+    if (!currentFile) return;
+    startBtn.disabled = true;
+    setProgress(0.05, "Preparing...");
+    if (isVideo) {
+      processVideo();
+    } else {
+      await processAudio();
+    }
   });
 
   resetBtn.addEventListener("click", () => {
